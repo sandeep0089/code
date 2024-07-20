@@ -1,0 +1,64 @@
+
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import Sequential, Model
+from matplotlib import pyplot as plt
+from tensorflow.config.experimental import get_visible_devices, set_memory_growth
+from numpy import unique
+import random
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+df = pd.read_csv("dataset.csv")
+df
+
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.01)
+
+X_train.shape
+
+
+
+"""#Genetic Mutation"""
+
+def mutate(lr):
+
+    num = random.randint(-1,1)
+    lr += (lr/10)*num
+
+    return lr
+
+"""#Genetic Mating"""
+
+def crossover(lrs):
+  new_lrs = []
+
+  new_lrs.append(lrs[0])
+  if(len(lrs) >1):
+    new_lrs.append(lrs[1])
+
+  if(len(lrs) > 2):
+    for i in range(2, len(lrs)):
+      parentA = random.randint(0, len(lrs)-1)
+      parentB = random.randint(0, len(lrs)-1)
+
+      new_lrs.append(mutate((lrs[parentA]+lrs[parentB])/2))
+
+  return new_lrs
+
+"""#Genetic Evolution**(combines mutate and crossover)**"""
+
+def evolve(losses, lrs):
+    sorted_y_idx_list = sorted(range(len(losses)),key=lambda x:losses[x])
+    lrs = [lrs[i] for i in sorted_y_idx_list]
+    lrs = crossover(lrs)
+
+    return lrs
+
+
